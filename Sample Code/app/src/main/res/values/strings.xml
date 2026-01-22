@@ -364,5 +364,6 @@
     <string name="split_screen_display">Split Screen Display</string>
 
     <string name="uas_view">UAS</string>
+    <string name="snd_task_btn_text">Send Task</string>
 
 </resources>

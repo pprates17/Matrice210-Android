@@ -33,6 +33,7 @@
         android:label="@string/sample_app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+
         android:extractNativeLibs="true"
         tools:replace="label"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">

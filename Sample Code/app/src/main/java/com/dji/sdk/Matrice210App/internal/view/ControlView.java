@@ -81,7 +81,7 @@ public class ControlView extends LinearLayout
 
     public ControlView(Context context) {
         super(context);
-        this.context = context;
+        this.context = getContext();
         init(context);
     }
 
@@ -139,22 +139,15 @@ public class ControlView extends LinearLayout
                 public void onResult(DJIError djiError) {
                     // We are now on a BACKGROUND thread
 
+                    // Inside sendData onResult:
                     if (djiError == null) {
-                        // Success! Switch to Main Thread to update UI
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(context.getApplicationContext(), "Send Success!", Toast.LENGTH_SHORT).show();
-                            }
+                        handler.post(() -> {
+                            Toast.makeText(context.getApplicationContext(), "Send Success!", Toast.LENGTH_SHORT).show();
                         });
                     } else {
-                        // Failure! Switch to Main Thread to show error
                         final String errorDesc = djiError.getDescription();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(context.getApplicationContext(), "Send Failed: " + errorDesc, Toast.LENGTH_LONG).show();
-                            }
+                        handler.post(() -> {
+                            Toast.makeText(context.getApplicationContext(), "Send Failed: " + errorDesc, Toast.LENGTH_LONG).show();
                         });
                     }
                 }
@@ -299,6 +292,10 @@ public class ControlView extends LinearLayout
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        // Ensure the KeyManager is initialized before the widgets try to use it
+        if (KeyManager.getInstance() == null) {
+            Log.e("DJI_SDK", "KeyManager is null! Widgets may crash.");
+        }
         DJISampleApplication.getEventBus().post(new MainActivity.RequestStartFullScreenEvent());
     }
 
