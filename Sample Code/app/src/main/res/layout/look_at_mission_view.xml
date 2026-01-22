@@ -86,13 +86,13 @@
             android:layout_width="240dp"
             android:layout_height="140dp">
 
-            <com.dji.sdk.sample.internal.utils.VideoFeedView
+            <com.dji.sdk.Matrice210App.internal.utils.VideoFeedView
                 android:id="@+id/primary_video_feed"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="fill_vertical" />
 
-            <com.dji.sdk.sample.demo.lookat.OverLayerTopView
+            <com.dji.sdk.Matrice210App.demo.lookat.OverLayerTopView
                 android:id="@+id/mt_over_layer_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

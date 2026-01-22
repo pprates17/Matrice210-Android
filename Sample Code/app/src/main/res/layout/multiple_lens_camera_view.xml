@@ -84,7 +84,7 @@
             android:layout_width="480dp"
             android:layout_height="280dp">
 
-            <com.dji.sdk.sample.internal.utils.VideoFeedView
+            <com.dji.sdk.Matrice210App.internal.utils.VideoFeedView
                 android:id="@+id/primary_video_feed"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

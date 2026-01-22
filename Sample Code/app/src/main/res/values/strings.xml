@@ -277,6 +277,7 @@
     <string name="video_feeder_set_primary_priority">Set Primary Priority</string>
     <string name="video_feeder_get_primary_priority">Get Primary Priority</string>
     <string name="component_listview_video_feeder">Video Feeder View</string>
+    <string name="component_control">Control View</string>
     <string name="component_xt2_camera_view">XT2 Camera View</string>
     <string name="camera_calibration">Camera Calibration</string>
 

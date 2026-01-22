@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.dji.sdk.sample.R;
+import com.dji.sdk.Matrice210App.R;
 
 /**
  * Abstract wheel adapter provides common functionality for adapters.

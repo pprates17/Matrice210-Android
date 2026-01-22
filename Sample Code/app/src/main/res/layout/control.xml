@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentRight="true"
+        android:scrollbars="vertical">
+
+        <FrameLayout
+            android:id="@+id/video_feed_container"
+            android:layout_width="504dp"
+            android:layout_height="278dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true">
+
+            <com.dji.sdk.Matrice210App.internal.utils.VideoFeedView
+                android:id="@+id/fpv_video_feed"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center" />
+
+            <View
+                android:id="@+id/fpv_cover_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/black"
+                android:visibility="visible" />
+        </FrameLayout>
+
+        <!-- Add a Button below the FPV Video Feed -->
+        <Button
+            android:id="@+id/send_task_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send Task"
+            android:layout_below="@id/video_feed_container"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp" />
+
+    </RelativeLayout>
+
+</merge>

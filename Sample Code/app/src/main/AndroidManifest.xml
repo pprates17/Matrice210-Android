@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.dji.sdk.sample">
+    package="com.dji.sdk.Matrice210App">
 
     <!-- SDK permission requirement -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -27,7 +27,7 @@
 
     <!-- SDK requirement permission end -->
     <application
-        android:name=".internal.controller.DJISampleApplication"
+        android:name="com.dji.sdk.Matrice210App.internal.controller.DJISampleApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/sample_app_name"
@@ -46,12 +46,12 @@
         <!-- personal key -->
         <meta-data
             android:name="com.dji.sdk.API_KEY"
-            android:value="Please enter your App key here."/>
+            android:value="1d41cd3b43e21f02c3745bc2"/>
         <!-- Required for receiving accessory attachment events.
             This is necessary for product when connecting over USB. -->
 
         <activity
-            android:name="com.dji.sdk.sample.internal.controller.MainActivity"
+            android:name="com.dji.sdk.Matrice210App.internal.controller.MainActivity"
             android:label="@string/sample_app_name"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
@@ -71,21 +71,21 @@
         </activity>
 
         <activity
-            android:name="com.dji.sdk.sample.demo.payload.PayloadActivity"
+            android:name="com.dji.sdk.Matrice210App.demo.payload.PayloadActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="landscape"/>
 
         <activity
-            android:name="com.dji.sdk.sample.demo.payload.PayloadSendGetDataActivity"
+            android:name="com.dji.sdk.Matrice210App.demo.payload.PayloadSendGetDataActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="landscape"/>
 
         <activity
-            android:name="com.dji.sdk.sample.demo.payload.PayloadWidgetActivity"
+            android:name="com.dji.sdk.Matrice210App.demo.payload.PayloadWidgetActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="landscape"/>
 
-        <activity android:name=".demo.utmiss.UTMISSActivity" />
+        <activity android:name="com.dji.sdk.Matrice210App.demo.utmiss.UTMISSActivity" />
     </application>
 
 </manifest>

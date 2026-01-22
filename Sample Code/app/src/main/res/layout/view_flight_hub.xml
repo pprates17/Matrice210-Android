@@ -20,7 +20,7 @@
             android:textSize="16sp"
             android:text="Step 1: "/>
 
-        <com.dji.sdk.sample.demo.useraccount.LoginView
+        <com.dji.sdk.Matrice210App.demo.useraccount.LoginView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

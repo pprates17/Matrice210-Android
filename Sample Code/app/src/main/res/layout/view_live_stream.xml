@@ -12,13 +12,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.dji.sdk.sample.internal.utils.VideoFeedView
+            <com.dji.sdk.Matrice210App.internal.utils.VideoFeedView
                 android:id="@+id/video_view_primary_video_feed"
                 style="@style/main_camera_view"
                 android:layout_alignParentBottom="false"
                 android:layout_marginTop="30dp" />
 
-            <com.dji.sdk.sample.internal.utils.VideoFeedView
+            <com.dji.sdk.Matrice210App.internal.utils.VideoFeedView
                 android:id="@+id/video_view_fpv_video_feed"
                 android:visibility="gone"
                 style="@style/main_camera_view"

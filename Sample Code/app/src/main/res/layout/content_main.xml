@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.dji.sdk.sample.internal.view.MainContent xmlns:android="http://schemas.android.com/apk/res/android"
+<com.dji.sdk.Matrice210App.internal.view.MainContent xmlns:android="http://schemas.android.com/apk/res/android"
                                               xmlns:tools="http://schemas.android.com/tools"
                                               android:layout_width="match_parent"
                                               android:layout_height="wrap_content"
@@ -126,11 +126,24 @@
         android:textColor="@color/common_text_color"
         android:textSize="15dp"/>
 
+    <Button
+        android:id="@+id/btn_open2"
+        android:layout_width="150dp"
+        android:layout_height="55dp"
+        android:layout_below="@+id/btn_open"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/round_btn"
+        android:text="Open2"
+        android:textAllCaps="false"
+        android:textColor="@color/common_text_color"
+        android:textSize="15dp" />
+
     <TextView
         android:id="@+id/text_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btn_open"
+        android:layout_below="@+id/btn_open2"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp"
         android:text="@string/sdk_version"
@@ -159,4 +172,4 @@
             android:textSize="15dp"/>
     </LinearLayout>
 
-</com.dji.sdk.sample.internal.view.MainContent>
+</com.dji.sdk.Matrice210App.internal.view.MainContent>

@@ -3,7 +3,8 @@
        android:layout_width="match_parent"
        android:layout_height="match_parent">
 
-    <com.dji.sdk.sample.internal.view.BaseCameraView style="@style/main_camera_view"
+    <com.dji.sdk.Matrice210App.internal.view.BaseCameraView
+        style="@style/main_camera_view"
                                                      android:layout_marginTop="100dp"/>
 
 
