@@ -44,6 +44,8 @@ import dji.ux.widget.MapWidget;
 
 import com.dji.sdk.Matrice210App.tools.ByteArrayUtils;
 
+import java.util.Arrays;
+
 /**
  * Class that manage live video feed from DJI products to the mobile device.
  * Also give the example of "getPrimaryVideoFeed" and "getSecondaryVideoFeed".
@@ -97,6 +99,7 @@ public class ControlView extends LinearLayout
         initUI();
         initCallbacks();
         setUpListeners();
+        setupOSDKReceiver();
     }
 
     private void onViewClick(View view) {
@@ -115,10 +118,9 @@ public class ControlView extends LinearLayout
     }
 
     private void sendTaskToOSDK() {
-        ToastUtils.setResultToToast("Sending...");
         FlightController flightController = getFlightController();
         if(flightController != null)
-            sendData("Cenas", flightController);
+            sendData("Hello OSDK", flightController);
     }
 
     // Assuming this code is inside an Activity or Fragment
@@ -137,12 +139,9 @@ public class ControlView extends LinearLayout
             flightController.sendDataToOnboardSDKDevice(data, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
-                    // We are now on a BACKGROUND thread
-
-                    // Inside sendData onResult:
                     if (djiError == null) {
                         handler.post(() -> {
-                            Toast.makeText(context.getApplicationContext(), "Send Success!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context.getApplicationContext(), "Msg Sent: " + text, Toast.LENGTH_SHORT).show();
                         });
                     } else {
                         final String errorDesc = djiError.getDescription();
@@ -157,8 +156,25 @@ public class ControlView extends LinearLayout
         }
     }
 
-    public void sendData(final byte[] data) {
-        ToastUtils.setResultToToast("Send data (" + data.length + ") : " + ByteArrayUtils.byteArrayToString(data) + "MOC");
+    private void setupOSDKReceiver() {
+        FlightController flightController = getFlightController();
+        if(flightController != null) {
+            flightController.setOnboardSDKDeviceDataCallback(new FlightController.OnboardSDKDeviceDataCallback() {
+                @Override
+                public void onReceive(byte[] bytes) {
+                    // This runs on a BACKGROUND thread
+                    String data = ByteArrayUtils.byteArrayToString(bytes);
+
+
+                    handler.post(() -> {
+                        // Limit log length for toast
+                        String display = data.length() > 20 ? data.substring(0, 20) + "..." : data;
+                        ToastUtils.setResultToToast("Msg Received: " + display);
+                    });
+                }
+            });
+            Log.d("DJI_SDK", "OSDK Data Callback Registered");
+        }
     }
 
     private void initAirLink() {
@@ -273,6 +289,8 @@ public class ControlView extends LinearLayout
             }
         }
     }
+
+
 
     @Override
     public void onClick(View view) {

@@ -6,55 +6,53 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@drawable/control_bg">
 
         <LinearLayout
             android:id="@+id/signal"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:background="@color/dark_gray"
-            android:gravity="center_vertical"
+            android:layout_height="50dp"
+            android:background="@color/black"
             android:orientation="horizontal"
+            android:gravity="center_vertical"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <dji.ux.widget.PreFlightStatusWidget
                 android:layout_width="238dp"
-                android:layout_height="25dp"/>
+                android:layout_height="30dp"
+                android:layout_marginStart="8dp" />
 
             <dji.ux.widget.FlightModeWidget
                 android:layout_width="103dp"
-                android:layout_height="22dp"/>
+                android:layout_height="30dp"/>
 
             <dji.ux.widget.GPSSignalWidget
                 android:layout_width="44dp"
-                android:layout_height="22dp"/>
+                android:layout_height="30dp"/>
 
             <dji.ux.widget.VisionWidget
                 android:layout_width="22dp"
-                android:layout_height="22dp"/>
+                android:layout_height="30dp"/>
 
             <dji.ux.widget.RemoteControlSignalWidget
                 android:layout_width="38dp"
-                android:layout_height="22dp"/>
+                android:layout_height="30dp"/>
 
             <dji.ux.widget.VideoSignalWidget
                 android:layout_width="38dp"
-                android:layout_height="22dp"/>
+                android:layout_height="30dp"/>
 
             <dji.ux.widget.WiFiSignalWidget
-                android:layout_width="22dp"
-                android:layout_height="20dp"/>
-
-            <dji.ux.widget.BatteryWidget
-                android:layout_width="96dp"
-                android:layout_height="22dp" />
+                android:layout_width="25dp"
+                android:layout_height="25dp"/>
 
             <dji.ux.widget.ConnectionWidget
-                android:layout_marginTop="3dp"
                 android:layout_width="18dp"
-                android:layout_height="18dp"/>
+                android:layout_height="20dp"/>
+
         </LinearLayout>
 
         <FrameLayout
@@ -62,7 +60,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintWidth_percent="0.75"
-            app:layout_constraintHeight_percent="0.70"
+            app:layout_constraintHeight_percent="0.65"
             app:layout_constraintTop_toBottomOf="@id/signal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
