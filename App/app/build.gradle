@@ -22,6 +22,7 @@ android {
             // above, FFmpeg lib might lead to runtime crashes or warnings.
             abiFilters 'armeabi-v7a','arm64-v8a'
         }
+        buildConfigField("String", "MAPBOX_API_TOKEN", "\"${MAPBOX_API_TOKEN}\"")
     }
 
     //需要直接使用appbundle的话，需要强制配置shrinkResources为false
@@ -33,7 +34,7 @@ android {
         }
         debug {
             shrinkResources false
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -42,7 +43,30 @@ android {
         javaMaxHeapSize "4g"
     }
 
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'com.mapbox.mapboxsdk' &&
+                    details.requested.name == 'mapbox-android-sdk') {
+                details.useVersion '9.2.0'
+            }
+        }
+    }
+
     packagingOptions {
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/INDEX.LIST'
+        // This tells Gradle to just pick one if it finds duplicates
+        pickFirst 'META-INF/annotation.kotlin_module'
+
+        // You might also run into these common ones soon, so add them now:
+        pickFirst 'META-INF/AL2.0'
+        pickFirst 'META-INF/LGPL2.1'
+        pickFirst 'META-INF/DEPENDENCIES'
+
         doNotStrip "*/*/libdjivideo.so"
         doNotStrip "*/*/libSDKRelativeJNI.so"
         doNotStrip "*/*/libFlyForbid.so"
@@ -88,12 +112,12 @@ dependencies {
         //exclude module: 'fly-safe-database'
     })
     compileOnly 'com.dji:dji-sdk-provided:4.18'
-    implementation 'com.amap.api:map2d:5.2.0'
-    implementation 'com.amap.api:3dmap:5.5.0'
-    implementation 'com.amap.api:search:5.5.0'
-    implementation 'com.amap.api:location:3.6.1'
 
     implementation 'com.dji:dji-uxsdk:4.5.1'
+    implementation("com.github.dji-sdk:Mobile-UXSDK-Beta-Android:v0.5.1")
+
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.2.0'
+
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.core:core:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
@@ -108,7 +132,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9"
     implementation 'com.google.android.gms:play-services:11.8.0'
-
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-runtime:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-process:2.3.1'

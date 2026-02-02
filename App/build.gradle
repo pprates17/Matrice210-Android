@@ -1,10 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.5.10'
+    ext.kotlin_version = '1.7.10'
     ext.androidXCore = "1.6.0"
     repositories {
         google()
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -18,8 +19,20 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
         mavenCentral()
+        google()
+        jcenter()
+        maven { url 'https://jitpack.io' }
+        maven {
+            url "https://api.mapbox.com/downloads/v2/releases/maven"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = "mapbox"
+                password = project.hasProperty("MAPBOX_DOWNLOADS_TOKEN") ? project.getProperty("MAPBOX_DOWNLOADS_TOKEN") : ""
+            }
+        }
     }
 }
 

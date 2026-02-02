@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -27,7 +28,8 @@
 
             <dji.ux.widget.FlightModeWidget
                 android:layout_width="103dp"
-                android:layout_height="30dp"/>
+                android:layout_height="30dp"
+                android:layout_marginStart="150dp"/>
 
             <dji.ux.widget.GPSSignalWidget
                 android:layout_width="44dp"
@@ -52,6 +54,10 @@
             <dji.ux.widget.ConnectionWidget
                 android:layout_width="18dp"
                 android:layout_height="20dp"/>
+
+            <!--dji.ux.widget.BatteryWidget
+                android:layout_width="18dp"
+                android:layout_height="20dp"/-->
 
         </LinearLayout>
 
@@ -80,6 +86,18 @@
                 android:visibility="visible" />
         </FrameLayout>
 
+        <dji.ux.widget.RadarWidget
+            android:id="@+id/radar_widget"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:scaleX="2"
+            android:scaleY="2"
+            android:alpha="0.8"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <dji.ux.widget.FPVOverlayWidget
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -97,6 +115,39 @@
             app:layout_constraintBottom_toBottomOf="@id/video_feed_container"
             app:layout_constraintStart_toStartOf="@id/video_feed_container"
             app:layout_constraintEnd_toEndOf="@id/video_feed_container" />
+
+        <dji.ux.widget.dashboard.DashboardWidget
+            android:id="@+id/dash_widget"
+            android:layout_width="400dp"
+            android:layout_height="250dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <dji.ux.widget.dashboard.DistanceRCWidget
+            android:id="@+id/dist_rc_widget"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/dash_widget"
+            app:layout_constraintStart_toEndOf="@+id/dash_widget" />
+
+        <dji.ux.widget.TakeOffWidget
+            android:id="@+id/take_off_widget"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <dji.ux.beta.map.widget.map.MapWidget
+            android:id="@+id/map_widget"
+            android:layout_width="150dp"
+            android:layout_height="100dp"
+            android:layout_margin="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </merge>

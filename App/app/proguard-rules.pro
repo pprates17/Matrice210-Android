@@ -120,3 +120,16 @@
 -keep class dji.sdk.utmiss.** { *; }
 -keep class utmisslib.** { *; }
 #<------------ utmiss config end------------>
+
+# Keep Mapbox methods exactly as they are
+-keep class com.mapbox.mapboxsdk.** { *; }
+-keep interface com.mapbox.mapboxsdk.** { *; }
+
+# Keep DJI Mapkit since it calls the Mapbox methods
+-keep class com.dji.mapkit.** { *; }
+
+# Prevent stripping of the specific method that's crashing
+-keepclassmembers class com.mapbox.mapboxsdk.maps.MapboxMapOptions {
+    public static com.mapbox.mapboxsdk.maps.MapboxMapOptions createFromAttributes(android.content.Context);
+    public static com.mapbox.mapboxsdk.maps.MapboxMapOptions createFromAttributes(android.content.Context, android.util.AttributeSet);
+}

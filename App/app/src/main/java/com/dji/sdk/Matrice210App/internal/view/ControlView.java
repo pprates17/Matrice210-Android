@@ -16,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dji.mapkit.core.models.DJILatLng;
+import com.dji.sdk.Matrice210App.BuildConfig;
 import com.dji.sdk.Matrice210App.Interfaces.MocInteraction;
 import com.dji.sdk.Matrice210App.Interfaces.MocInteractionListener;
 import com.dji.sdk.Matrice210App.R;
@@ -40,7 +42,12 @@ import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
-import dji.ux.widget.MapWidget;
+import com.dji.mapkit.google.provider.GoogleProvider;
+
+import com.dji.mapkit.core.maps.DJIMap;
+import dji.ux.beta.core.util.SettingDefinitions;
+import dji.ux.beta.core.util.ViewUtil;
+import dji.ux.beta.map.widget.map.MapWidget;
 
 import com.dji.sdk.Matrice210App.tools.ByteArrayUtils;
 
@@ -93,7 +100,6 @@ public class ControlView extends LinearLayout
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.control, this, true);
 
-
         initAirLink();
         initAllKeys();
         initUI();
@@ -111,10 +117,35 @@ public class ControlView extends LinearLayout
         fpvCoverView = findViewById(R.id.fpv_cover_view);
         fpvVideoFeed.setCoverView(fpvCoverView);
 
+        mapWidget = findViewById(R.id.map_widget);
+
+        MapWidget.OnMapReadyListener onMapReadyListener = map -> {
+            map.setMapType(DJIMap.MapType.NORMAL);
+            mapWidget.setMapCenterLock(MapWidget.MapCenterLock.AIRCRAFT);
+            mapWidget.setAircraftMarkerEnabled(true);
+
+            mapWidget.onResume();
+        };
+
+        String token = BuildConfig.MAPBOX_API_TOKEN;
+        try {
+            // 3. CRITICAL: Initialize Mapbox globally first
+            // This often resolves the "NoSuchMethodError" because it warms up the
+            // Mapbox class loader before DJI's internal Mapkit tries to touch it.
+            com.mapbox.mapboxsdk.Mapbox.getInstance(this.getContext(), token);
+
+            // 4. Initialize the Widget
+            mapWidget.initMapboxMap(token, onMapReadyListener);
+
+        } catch (Exception e) {
+            Log.e("DJI_MAP", "Mapbox initialization failed: " + e.getMessage());
+        }
+
         sendTaskBtn = findViewById(R.id.send_task_btn);
         sendTaskBtn.setOnClickListener(v -> {
             sendTaskToOSDK();
         });
+
     }
 
     private void sendTaskToOSDK() {
@@ -321,6 +352,7 @@ public class ControlView extends LinearLayout
     protected void onDetachedFromWindow() {
         DJISampleApplication.getEventBus().post(new MainActivity.RequestEndFullScreenEvent());
         tearDownListeners();
+        mapWidget.onDestroy();
         super.onDetachedFromWindow();
     }
 
