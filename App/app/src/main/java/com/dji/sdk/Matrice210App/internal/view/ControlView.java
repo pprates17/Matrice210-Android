@@ -1,14 +1,16 @@
 package com.dji.sdk.Matrice210App.internal.view;
 
 import static com.dji.sdk.Matrice210App.internal.utils.ModuleVerificationUtil.getFlightController;
-import static com.google.android.gms.internal.zzahn.runOnUiThread;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -16,10 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dji.mapkit.core.models.DJILatLng;
 import com.dji.sdk.Matrice210App.BuildConfig;
-import com.dji.sdk.Matrice210App.Interfaces.MocInteraction;
-import com.dji.sdk.Matrice210App.Interfaces.MocInteractionListener;
 import com.dji.sdk.Matrice210App.R;
 import com.dji.sdk.Matrice210App.internal.controller.DJISampleApplication;
 import com.dji.sdk.Matrice210App.internal.controller.MainActivity;
@@ -28,9 +27,11 @@ import com.dji.sdk.Matrice210App.internal.utils.ToastUtils;
 import com.dji.sdk.Matrice210App.internal.utils.VideoFeedView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+
 import dji.common.airlink.PhysicalSource;
 import dji.common.error.DJIError;
-import dji.common.util.CommonCallbacks;
 import dji.keysdk.AirLinkKey;
 import dji.keysdk.KeyManager;
 import dji.keysdk.callback.ActionCallback;
@@ -39,19 +40,13 @@ import dji.sdk.airlink.AirLink;
 import dji.sdk.base.BaseProduct;
 import dji.sdk.camera.VideoFeeder;
 import dji.sdk.flightcontroller.FlightController;
-import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
-import com.dji.mapkit.google.provider.GoogleProvider;
-
 import com.dji.mapkit.core.maps.DJIMap;
-import dji.ux.beta.core.util.SettingDefinitions;
-import dji.ux.beta.core.util.ViewUtil;
+
 import dji.ux.beta.map.widget.map.MapWidget;
 
 import com.dji.sdk.Matrice210App.tools.ByteArrayUtils;
-
-import java.util.Arrays;
 
 /**
  * Class that manage live video feed from DJI products to the mobile device.
@@ -116,6 +111,7 @@ public class ControlView extends LinearLayout
         fpvVideoFeed = (VideoFeedView) findViewById(R.id.fpv_video_feed);
         fpvCoverView = findViewById(R.id.fpv_cover_view);
         fpvVideoFeed.setCoverView(fpvCoverView);
+        findViewById(R.id.radar_widget).setClickable(false);
 
         mapWidget = findViewById(R.id.map_widget);
 
@@ -123,20 +119,16 @@ public class ControlView extends LinearLayout
             map.setMapType(DJIMap.MapType.NORMAL);
             mapWidget.setMapCenterLock(MapWidget.MapCenterLock.AIRCRAFT);
             mapWidget.setAircraftMarkerEnabled(true);
-
+            mapWidget.setHomeMarkerEnabled(true);
+            mapWidget.setFlightPathEnabled(true);
             mapWidget.onResume();
         };
 
         String token = BuildConfig.MAPBOX_API_TOKEN;
         try {
-            // 3. CRITICAL: Initialize Mapbox globally first
-            // This often resolves the "NoSuchMethodError" because it warms up the
-            // Mapbox class loader before DJI's internal Mapkit tries to touch it.
             com.mapbox.mapboxsdk.Mapbox.getInstance(this.getContext(), token);
-
-            // 4. Initialize the Widget
             mapWidget.initMapboxMap(token, onMapReadyListener);
-
+            mapWidget.getUserAccountLoginWidget().setVisibility(View.GONE);
         } catch (Exception e) {
             Log.e("DJI_MAP", "Mapbox initialization failed: " + e.getMessage());
         }
@@ -146,6 +138,7 @@ public class ControlView extends LinearLayout
             sendTaskToOSDK();
         });
 
+        setSwapLogic();
     }
 
     private void sendTaskToOSDK() {
@@ -167,19 +160,16 @@ public class ControlView extends LinearLayout
 
         // 3. Access the OnboardSDKDevice (usually via FlightController)
         if (flightController != null) {
-            flightController.sendDataToOnboardSDKDevice(data, new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onResult(DJIError djiError) {
-                    if (djiError == null) {
-                        handler.post(() -> {
-                            Toast.makeText(context.getApplicationContext(), "Msg Sent: " + text, Toast.LENGTH_SHORT).show();
-                        });
-                    } else {
-                        final String errorDesc = djiError.getDescription();
-                        handler.post(() -> {
-                            Toast.makeText(context.getApplicationContext(), "Send Failed: " + errorDesc, Toast.LENGTH_LONG).show();
-                        });
-                    }
+            flightController.sendDataToOnboardSDKDevice(data, djiError -> {
+                if (djiError == null) {
+                    handler.post(() -> {
+                        Toast.makeText(context.getApplicationContext(), "Msg Sent: " + text, Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    final String errorDesc = djiError.getDescription();
+                    handler.post(() -> {
+                        Toast.makeText(context.getApplicationContext(), "Send Failed: " + errorDesc, Toast.LENGTH_LONG).show();
+                    });
                 }
             });
         } else {
@@ -195,7 +185,6 @@ public class ControlView extends LinearLayout
                 public void onReceive(byte[] bytes) {
                     // This runs on a BACKGROUND thread
                     String data = ByteArrayUtils.byteArrayToString(bytes);
-
 
                     handler.post(() -> {
                         // Limit log length for toast
@@ -331,8 +320,6 @@ public class ControlView extends LinearLayout
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
     }
 
-
-
     @Override
     public int getDescription() {
         return R.string.component_listview_video_feeder;
@@ -360,5 +347,82 @@ public class ControlView extends LinearLayout
     @Override
     public String getHint() {
         return this.getClass().getSimpleName() + ".java";
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void setSwapLogic() {
+        View map_gesture_shield = findViewById(R.id.map_gesture_shield);
+        View map_fpv_shield = findViewById(R.id.fpv_cover_view);
+        final GestureDetector detector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(@NonNull MotionEvent e) {
+                Log.d("DJI_DEBUG", "Double tap detected!");
+                swapMap();
+                return true;
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                return false;
+            }
+        });
+
+        map_gesture_shield.setOnTouchListener((v, event) -> {
+            detector.onTouchEvent(event);
+            if (mapWidget != null) {
+                mapWidget.dispatchTouchEvent(event);
+            }
+            return true;
+        });
+        map_fpv_shield.setOnTouchListener((v, event) -> detector.onTouchEvent(event));
+    }
+
+    private void swapMap() {
+        ConstraintLayout root_layout = findViewById(R.id.root_control_layout);
+        if (root_layout == null) return;
+
+        ConstraintSet set = new ConstraintSet();
+        set.clone(root_layout);
+
+        if (isMapMini) {
+            applyConstraints(set, R.id.map_container, 0.85f, 0.70f, true);
+            applyConstraints(set, R.id.video_feed_container, 0f, 0f, false);
+            isMapMini = false;
+        } else {
+            applyConstraints(set, R.id.video_feed_container, 0.85f, 0.70f, true);
+            applyConstraints(set, R.id.map_container, 0f, 0f, false);
+            isMapMini = true;
+        }
+
+        set.applyTo(root_layout);
+    }
+
+    private void applyConstraints(ConstraintSet set, int viewId, float wPercent, float hPercent, boolean isBig) {
+        set.clear(viewId);
+
+        if (isBig) {
+            set.constrainWidth(viewId, ConstraintSet.MATCH_CONSTRAINT);
+            set.constrainHeight(viewId, ConstraintSet.MATCH_CONSTRAINT);
+
+            set.constrainPercentWidth(viewId, wPercent);
+            set.constrainPercentHeight(viewId, hPercent);
+
+            set.connect(viewId, ConstraintSet.TOP, R.id.remaining_flight_time_widget, ConstraintSet.BOTTOM);
+            set.connect(viewId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+            set.connect(viewId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+            set.connect(viewId, ConstraintSet.BOTTOM, R.id.dash_group_container, ConstraintSet.TOP);
+        } else {
+            set.constrainWidth(viewId, dpToPx(200));
+            set.constrainHeight(viewId, dpToPx(130));
+            set.connect(viewId, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+            set.connect(viewId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+            set.clear(viewId, ConstraintSet.TOP);
+        }
+    }
+
+    // Helper to ensure sizes are correct across different screen densities
+    private int dpToPx(int dp) {
+        float density = getContext().getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
     }
 }

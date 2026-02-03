@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,21 +22,15 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 
-import com.dji.sdk.Matrice210App.Interfaces.MocInteraction;
-import com.dji.sdk.Matrice210App.Interfaces.MocInteractionListener;
 import com.dji.sdk.Matrice210App.R;
 import com.dji.sdk.Matrice210App.internal.model.ViewWrapper;
 import com.dji.sdk.Matrice210App.internal.utils.ToastUtils;
-import com.dji.sdk.Matrice210App.internal.view.DemoListView;
 import com.dji.sdk.Matrice210App.internal.view.PresentableView;
 import com.squareup.otto.Subscribe;
 
 import java.util.Stack;
 
-import dji.common.error.DJIError;
-import dji.common.util.CommonCallbacks;
 import dji.sdk.base.BaseProduct;
-import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private ObjectAnimator pushOutAnimator;
     private ObjectAnimator popInAnimator;
     private LayoutTransition popOutTransition;
-    private ProgressBar progressBar;
     private Stack<ViewWrapper> stack;
     private TextView titleTextView;
     private SearchView searchView;
@@ -238,22 +230,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refreshOptionsMenu() {
-        if (stack.size() == 2 && stack.peek().getView() instanceof DemoListView) {
-            searchViewItem.setVisible(true);
-        } else {
-            searchViewItem.setVisible(false);
-            searchViewItem.collapseActionView();
-        }
-        if (stack.size() == 3 && stack.peek().getView() instanceof PresentableView) {
-            hintItem.setVisible(true);
-        } else {
-            hintItem.setVisible(false);
-        }
+        hintItem.setVisible(stack.size() == 3 && stack.peek().getView() instanceof PresentableView);
     }
 
 
     private void showHint() {
-        if (stack.size() != 0 && stack.peek().getView() instanceof PresentableView) {
+        if (!stack.isEmpty() && stack.peek().getView() instanceof PresentableView) {
             ToastUtils.setResultToToast(((PresentableView) stack.peek().getView()).getHint());
         }
     }
