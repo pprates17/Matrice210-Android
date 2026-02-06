@@ -365,5 +365,6 @@
 
     <string name="uas_view">UAS</string>
     <string name="snd_task_btn_text">Send Task</string>
+    <string name="take_sample_btn_text">Take Sample</string>
 
 </resources>

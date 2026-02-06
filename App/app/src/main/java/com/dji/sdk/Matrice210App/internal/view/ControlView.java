@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -78,8 +79,11 @@ public class ControlView extends LinearLayout
     private String cameraListStr;
 
     private Button sendTaskBtn;
+    private Button takeSampleBtn;
 
     private MapWidget mapWidget;
+
+    private TextView oskd_log;
 
     private boolean isMapMini = true;
 
@@ -113,6 +117,9 @@ public class ControlView extends LinearLayout
         fpvVideoFeed.setCoverView(fpvCoverView);
         findViewById(R.id.radar_widget).setClickable(false);
 
+        oskd_log = findViewById(R.id.sdk_comms_log);
+        oskd_log.setMovementMethod(new ScrollingMovementMethod());
+
         mapWidget = findViewById(R.id.map_widget);
 
         MapWidget.OnMapReadyListener onMapReadyListener = map -> {
@@ -135,35 +142,44 @@ public class ControlView extends LinearLayout
 
         sendTaskBtn = findViewById(R.id.send_task_btn);
         sendTaskBtn.setOnClickListener(v -> {
-            sendTaskToOSDK();
+            sendTaskToOSDK(TaskType.LOG, "Hello OSDK");
         });
+
+        takeSampleBtn = findViewById(R.id.take_sample_btn);
+        takeSampleBtn.setOnClickListener(v -> {
+            sendTaskToOSDK(TaskType.TAKE_SAMPLE, "");
+        });f
 
         setSwapLogic();
     }
 
-    private void sendTaskToOSDK() {
+    private void sendTaskToOSDK(TaskType task, String txt) {
         FlightController flightController = getFlightController();
         if(flightController != null)
-            sendData("Hello OSDK", flightController);
+            sendData(task, txt, flightController);
     }
 
-    // Assuming this code is inside an Activity or Fragment
-    private void sendData(String text, FlightController flightController) {
-        // 1. Get the data bytes
-        byte[] data = text.getBytes();
+    private void sendData(TaskType task, String text, FlightController flightController) {
 
-        // 2. Safety Check for the @Size constraint (1-100 bytes)
-        if (data.length < 1 || data.length > 100) {
-            Toast.makeText(this.getContext(), "Data must be between 1 and 100 bytes", Toast.LENGTH_SHORT).show();
+        byte[] msg_bytes = text.getBytes();
+        byte[] data = new byte[msg_bytes.length + 3];
+
+        if (data.length < 1 || data.length > 300) {
+            Toast.makeText(this.getContext(), "Data must be between 1 and 300 bytes", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 3. Access the OnboardSDKDevice (usually via FlightController)
+        data[0] = (byte) task.value();
+        data[1] = (byte) msg_bytes.length;;
+
+        System.arraycopy(msg_bytes, 0, data, 2, msg_bytes.length);
+        data[data.length - 1] = 0;
+
         if (flightController != null) {
             flightController.sendDataToOnboardSDKDevice(data, djiError -> {
                 if (djiError == null) {
                     handler.post(() -> {
-                        Toast.makeText(context.getApplicationContext(), "Msg Sent: " + text, Toast.LENGTH_SHORT).show();
+                        logConsole(oskd_log, text, true);
                     });
                 } else {
                     final String errorDesc = djiError.getDescription();
@@ -183,13 +199,11 @@ public class ControlView extends LinearLayout
             flightController.setOnboardSDKDeviceDataCallback(new FlightController.OnboardSDKDeviceDataCallback() {
                 @Override
                 public void onReceive(byte[] bytes) {
-                    // This runs on a BACKGROUND thread
                     String data = ByteArrayUtils.byteArrayToString(bytes);
 
                     handler.post(() -> {
-                        // Limit log length for toast
                         String display = data.length() > 20 ? data.substring(0, 20) + "..." : data;
-                        ToastUtils.setResultToToast("Msg Received: " + display);
+                        logConsole(oskd_log, data, false);
                     });
                 }
             });
@@ -385,11 +399,11 @@ public class ControlView extends LinearLayout
         set.clone(root_layout);
 
         if (isMapMini) {
-            applyConstraints(set, R.id.map_container, 0.85f, 0.70f, true);
+            applyConstraints(set, R.id.map_container, 0.75f, 0.65f, true);
             applyConstraints(set, R.id.video_feed_container, 0f, 0f, false);
             isMapMini = false;
         } else {
-            applyConstraints(set, R.id.video_feed_container, 0.85f, 0.70f, true);
+            applyConstraints(set, R.id.video_feed_container, 0.75f, 0.65f, true);
             applyConstraints(set, R.id.map_container, 0f, 0f, false);
             isMapMini = true;
         }
@@ -424,5 +438,28 @@ public class ControlView extends LinearLayout
     private int dpToPx(int dp) {
         float density = getContext().getResources().getDisplayMetrics().density;
         return Math.round((float) dp * density);
+    }
+
+    private  void logConsole(TextView textView, String text, Boolean outbound)
+    {
+        String prefix;
+        prefix = (outbound) ? "[OUT]: " : "[IN]: ";
+        textView.append(prefix + text + "\n");
+    }
+
+    private enum TaskType {
+        LOG(0),
+        TAKE_SAMPLE(1),
+        SERVO_0_ON(2),
+        SERVO_0_OFF(3);
+
+        private final int value;
+        TaskType(int value) {
+            this.value = value;
+        }
+
+        public int value() {
+            return value;
+        }
     }
 }
